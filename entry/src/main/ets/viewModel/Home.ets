@@ -9,7 +9,7 @@ export interface BannerList{
   sourceName:string;
 }
 // 限定书籍数据结构
-interface  BookList{
+export interface  BookList{
   title:string; // 书名
   authorName:string; // 作者
   coverUrl:string; // 封面
@@ -22,7 +22,7 @@ interface  BookList{
 }
 
 // 针对分类数据结构进行限定
-interface  ChannerList{
+export interface  ChannelList{
   title:string;
   bookList:Array<BookList>
 }
@@ -30,7 +30,7 @@ interface  ChannerList{
 
 interface HomeModel{
   bannerList:Array<BannerList>; // 数组泛型
-  channelList:Array<ChannerList>
+  channelList:Array<ChannelList>
 }
 
 // 定义一个类
