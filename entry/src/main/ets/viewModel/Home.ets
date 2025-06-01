@@ -28,7 +28,7 @@ export interface  ChannelList{
 }
 
 
-interface HomeModel{
+export interface HomeModel{
   bannerList:Array<BannerList>; // 数组泛型
   channelList:Array<ChannelList>
 }

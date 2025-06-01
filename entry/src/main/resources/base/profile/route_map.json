@@ -1,0 +1,25 @@
+{
+  "routerMap": [
+    {
+      "name": "BookEnd",
+      "pageSourceFile": "src/main/ets/pages/BookEnd.ets",
+      "buildFunction": "BookEndBuilder",
+      "data": {
+        "description" : "this is BookEnd"
+      }
+    },
+    {
+      "name": "RankPage",
+      "pageSourceFile": "src/main/ets/pages/RankPage.ets",
+      "buildFunction": "RankPageBuilder",
+      "data": {
+        "description" : "this is RankPage"
+      }
+    },
+    {
+      "name": "DetailsPage",
+      "pageSourceFile": "src/main/ets/pages/DetailsPage.ets",
+      "buildFunction": "DetailsPageBuilder"
+    }
+  ]
+}
