@@ -1,6 +1,21 @@
 import {BookList} from '../viewModel/Home'
+import {formatWords} from '../utils/tools'
+
+class DetailsParams{
+  sourceName:string = '';
+  sourceId:string = '';
+
+  constructor(sourceName:string, sourceId:string) {
+    this.sourceName = sourceName;
+    this.sourceId = sourceId;
+  }
+}
+
 @Component
 export default struct BookItem{
+  // 接受路由对象
+  @Consume('pageInfos') pageInfos: NavPathStack;
+
   @Prop bookList:BookList = {
     title:'', // 书名
     authorName:'', // 作者
@@ -12,10 +27,7 @@ export default struct BookItem{
     sourceId:'', // 资源id
     sourceName:'' // 资源名
   }
-  // 封装一个函数， 对字数进行格式化处理
-  formatWords(words:number){
-      return `${parseInt((words/10000).toString())}万字`
-  }
+
 
   build() {
     Row(){
@@ -45,7 +57,7 @@ export default struct BookItem{
             .fontColor('#2e2e2e')
             .opacity(0.6)
           Blank()
-          Text(this.formatWords(this.bookList.allWords))
+          Text(formatWords(this.bookList.allWords))
             .fontSize(12)
             .fontColor('#2e2e2e')
             .opacity(0.6)
@@ -68,5 +80,8 @@ export default struct BookItem{
       .width('100%')
       .padding(15)
       .border({width:{bottom:1}, style:BorderStyle.Solid, color:'#ededed' })
+      .onClick(() => {
+        this.pageInfos.pushPath({name:"DetailsPage", param:new DetailsParams(this.bookList.sourceName, this.bookList.sourceId)})
+      })
   }
 }

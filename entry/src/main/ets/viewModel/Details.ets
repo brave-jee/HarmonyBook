@@ -8,10 +8,23 @@ export interface  DetailsModel{
   coverUrl:string;
   title:string;
   intro:string;
+  authorName:string;
+  latestChapter:string;
+  categoryName:string;
+  sourceId:string;
+  sourceName:string;
+  status:number;
+  createTime:number;
 }
 
-interface  CommonModel{
-
+export interface  CommentsModel{
+  content:string;
+  header:string;
+  nickname:string;
+  createdOn:number;
+  upCount:number;
+  score:number;
+  bookId:string;
 }
 
 
@@ -32,7 +45,7 @@ class DetailsRequest{
     })
   }
   // 请求评论
-  commonRequestHandler(pathname:string):Promise<CommonModel>{
+  commentsRequestHandler(pathname:string):Promise<Array<CommentsModel>>{
     return new Promise((resolve:Function) => {
       // 获取完整的请求url地址  pathname='/book_mall'  Constants.SERVER='https://xxxx.com'
       let url = `${Constants.SERVER}${pathname}`; // url='https://xxxx.com/book_mall'

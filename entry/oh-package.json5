@@ -5,6 +5,9 @@
   "main": "",
   "author": "",
   "license": "",
-  "dependencies": {}
+  "dependencies": {
+    "dayjs": "^1.11.13"
+  },
+  "devDependencies": {},
+  "dynamicDependencies": {}
 }
-
