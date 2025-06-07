@@ -22,7 +22,7 @@ struct Index {
   @State channelList: Array<ChannelList> = [];
 
   aboutToAppear(): void {
-    homeRequest.homeRequestHandler('/book_mall?ctype=2&seed=9785&page=0').then((res:HomeModel) => {
+    homeRequest.homeRequestHandler(`/book_mall?ctype=2&seed=${Math.random().toString().slice(-4)}&page=0`).then((res:HomeModel) => {
       this.bannerList = res.bannerList;
       this.channelList = res.channelList;
     })

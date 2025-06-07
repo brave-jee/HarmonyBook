@@ -1,5 +1,5 @@
 import detailsRequest, { DetailsModel, CommentsModel } from '../viewModel/Details'
-import { formatWords, formatUpdateTime } from '../utils/tools'
+import { formatWords, formatUpdateTime, formatCommentsTime, formatRatingScore, textCollapse, TextResult } from '../utils/tools'
 
 // 跳转页面入口函数
 @Builder
@@ -19,7 +19,9 @@ class DetailsParams {
 }
 
 @Component
-export default struct DetailsPage {
+export  default struct DetailsPage {
+  // 接受路由对象
+  @Consume('pageInfos') pageInfos: NavPathStack;
   // 接受路由传递的数据
   @State queryParams: DetailsParams = new DetailsParams('', '');
   @State detailsInfos: DetailsModel = {
@@ -35,14 +37,17 @@ export default struct DetailsPage {
     status: 0,
     createTime: 0
   }
-  @State commentsList: Array<CommentsModel> = []
+  @State commentsList: Array<CommentsModel> = [];
+  @State intro:TextResult = new TextResult('', false)
 
   // 请求函数
   getDetailsData() {
     // 请求书籍的详细信息
     detailsRequest.detailsRequestHandler(`/book?sourceName=${this.queryParams.sourceName}&sourceId=${this.queryParams.sourceId}`)
       .then((res: DetailsModel) => {
-        this.detailsInfos = res
+        this.detailsInfos = res;
+        // 单独存储内容简介数据 ， 便于实现文本展开效果进行计算
+        this.intro = textCollapse(this.detailsInfos.intro, false);
       })
 
     //  请求评论  /top_comments?sourceName=tf&sourceId=yq_10077
@@ -110,6 +115,9 @@ export default struct DetailsPage {
               .textAlign(TextAlign.Center)
               .backgroundColor('#ffbb1b')
               .margin({ top: 10 })
+              .onClick(() => {
+                  this.pageInfos.pushPath({name:"ReaderPage", param:new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId) })
+              })
           }
           .width('100%')
           .padding({
@@ -148,7 +156,17 @@ export default struct DetailsPage {
             }
             .width('100%')
 
-            Text(this.detailsInfos.intro)
+            Text(){
+                Span(this.intro.clipTitle)  // 默认展示的文本
+                if(this.intro.isMore){
+                  Span('...')
+                  Span('展开更多')
+                    .fontColor('#1ba1ff')
+                    .onClick(() => {
+                      this.intro = textCollapse(this.detailsInfos.intro, true)
+                    })
+                }
+            }
               .textAlign(TextAlign.Start)
               .padding({ left: 10, right: 10 })
               .margin({top:10})
@@ -175,15 +193,18 @@ export default struct DetailsPage {
                         .borderRadius(10)
                       Text(item.nickname).fontColor('#a16400').fontSize(12).margin({ left: 5, right: 5 })
                       Text('读过').fontColor('#a16400').fontSize(12)
-                      Rating({ rating: 3, indicator: false })
+                      // 五行好评   score:100 5星    60 四星     20 二星
+                      Rating({ rating: formatRatingScore(item.score), indicator: false })
                         .stars(5)
                         .stepSize(0.5)
+                        .size({width:80})
                     }.width('100%')
 
                     Text(item.content).fontSize(12).opacity(0.6).width('100%').textAlign(TextAlign.Start)
                       .margin({top:10, bottom:10})
                     Row() {
-                      Text(item.createdOn.toString()).fontSize(12)
+                      // 评论时间格式化
+                      Text(formatCommentsTime(item.createdOn)).fontSize(12)
                       Blank()
                       Text() {
                         SymbolSpan($r('sys.symbol.hand_thumbsup_fill'))

@@ -20,6 +20,11 @@
       "name": "DetailsPage",
       "pageSourceFile": "src/main/ets/pages/DetailsPage.ets",
       "buildFunction": "DetailsPageBuilder"
+    },
+    {
+      "name": "ReaderPage",
+      "pageSourceFile": "src/main/ets/pages/ReaderPage.ets",
+      "buildFunction": "ReaderPageBuilder"
     }
   ]
 }
