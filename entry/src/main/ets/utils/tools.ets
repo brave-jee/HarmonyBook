@@ -101,6 +101,20 @@ export const textCollapse = (text: string, isCollapse?: boolean) => {
     return new TextResult(clipTitle, false) // 后续不需要点击展开操作
   }
 }
+export interface  FormateChapterModel{
+  value:string;
+}
+// 章节列表格式化
+export function formatChaptersList(chapterSize:number):Array<FormateChapterModel>{
+    let listLength:number = Math.ceil(chapterSize / 100) ; // 向上取整
+    let chaptersList:Array<FormateChapterModel> = [];
+    for(let i = 0; i < listLength; i++){
+      let title = `${i}01 - ${(i + 1) * 100} 章`
+      chaptersList.push({value:title})
+    }
+
+return   chaptersList; // 101-200  201-300
+}
 
 
 

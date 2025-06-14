@@ -25,6 +25,11 @@
       "name": "ReaderPage",
       "pageSourceFile": "src/main/ets/pages/ReaderPage.ets",
       "buildFunction": "ReaderPageBuilder"
+    },
+    {
+      "name": "ChaptersPage",
+      "pageSourceFile": "src/main/ets/pages/ChaptersPage.ets",
+      "buildFunction": "ChaptersPageBuilder"
     }
   ]
 }

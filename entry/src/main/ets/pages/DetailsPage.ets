@@ -1,5 +1,12 @@
 import detailsRequest, { DetailsModel, CommentsModel } from '../viewModel/Details'
-import { formatWords, formatUpdateTime, formatCommentsTime, formatRatingScore, textCollapse, TextResult } from '../utils/tools'
+import {
+  formatWords,
+  formatUpdateTime,
+  formatCommentsTime,
+  formatRatingScore,
+  textCollapse,
+  TextResult
+} from '../utils/tools'
 
 // 跳转页面入口函数
 @Builder
@@ -7,7 +14,7 @@ export function DetailsPageBuilder() {
   DetailsPage()
 }
 
-
+// 跳转详情页的路由参数
 class DetailsParams {
   sourceName: string = '';
   sourceId: string = '';
@@ -18,8 +25,21 @@ class DetailsParams {
   }
 }
 
+// 跳转章节目录页面的路由参数
+class ChapterParams {
+  sourceName: string = '';
+  sourceId: string = '';
+  chapterId?: string = '';
+
+  constructor(sourceName: string, sourceId: string,chapterId?: string) {
+    this.sourceName = sourceName;
+    this.sourceId = sourceId;
+    this.chapterId = chapterId;
+  }
+}
+
 @Component
-export  default struct DetailsPage {
+export default struct DetailsPage {
   // 接受路由对象
   @Consume('pageInfos') pageInfos: NavPathStack;
   // 接受路由传递的数据
@@ -38,7 +58,7 @@ export  default struct DetailsPage {
     createTime: 0
   }
   @State commentsList: Array<CommentsModel> = [];
-  @State intro:TextResult = new TextResult('', false)
+  @State intro: TextResult = new TextResult('', false)
 
   // 请求函数
   getDetailsData() {
@@ -116,7 +136,10 @@ export  default struct DetailsPage {
               .backgroundColor('#ffbb1b')
               .margin({ top: 10 })
               .onClick(() => {
-                  this.pageInfos.pushPath({name:"ReaderPage", param:new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId) })
+                this.pageInfos.pushPath({
+                  name: "ReaderPage",
+                  param: new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId)
+                })
               })
           }
           .width('100%')
@@ -145,6 +168,9 @@ export  default struct DetailsPage {
           }
           .width('100%')
           .height(60)
+          .onClick(() => {
+            this.pageInfos.pushPath({ name: 'ChaptersPage', param: new ChapterParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId) })
+          })
 
           // 内容简介
           Column() {
@@ -156,20 +182,20 @@ export  default struct DetailsPage {
             }
             .width('100%')
 
-            Text(){
-                Span(this.intro.clipTitle)  // 默认展示的文本
-                if(this.intro.isMore){
-                  Span('...')
-                  Span('展开更多')
-                    .fontColor('#1ba1ff')
-                    .onClick(() => {
-                      this.intro = textCollapse(this.detailsInfos.intro, true)
-                    })
-                }
+            Text() {
+              Span(this.intro.clipTitle) // 默认展示的文本
+              if (this.intro.isMore) {
+                Span('...')
+                Span('展开更多')
+                  .fontColor('#1ba1ff')
+                  .onClick(() => {
+                    this.intro = textCollapse(this.detailsInfos.intro, true)
+                  })
+              }
             }
-              .textAlign(TextAlign.Start)
-              .padding({ left: 10, right: 10 })
-              .margin({top:10})
+            .textAlign(TextAlign.Start)
+            .padding({ left: 10, right: 10 })
+            .margin({ top: 10 })
           }.margin({ bottom: 10 })
 
           // 书评  是否显示书评
@@ -182,7 +208,7 @@ export  default struct DetailsPage {
                 Text('热门书评').fontSize(16).fontColor('#000')
               }
               .width('100%')
-              .margin({top:10})
+              .margin({ top: 10 })
 
               // 评论列表
               Column() {
@@ -197,11 +223,15 @@ export  default struct DetailsPage {
                       Rating({ rating: formatRatingScore(item.score), indicator: false })
                         .stars(5)
                         .stepSize(0.5)
-                        .size({width:80})
+                        .size({ width: 80 })
                     }.width('100%')
 
-                    Text(item.content).fontSize(12).opacity(0.6).width('100%').textAlign(TextAlign.Start)
-                      .margin({top:10, bottom:10})
+                    Text(item.content)
+                      .fontSize(12)
+                      .opacity(0.6)
+                      .width('100%')
+                      .textAlign(TextAlign.Start)
+                      .margin({ top: 10, bottom: 10 })
                     Row() {
                       // 评论时间格式化
                       Text(formatCommentsTime(item.createdOn)).fontSize(12)
@@ -213,7 +243,7 @@ export  default struct DetailsPage {
                     }.width('100%')
                   }
                   .width('100%')
-                  .padding({top:10, bottom:10})
+                  .padding({ top: 10, bottom: 10 })
                   .border({ width: { bottom: 1 }, color: '#fdfdfd', style: BorderStyle.Solid })
 
                 }, (item: CommentsModel) => item.bookId)

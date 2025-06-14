@@ -15,6 +15,7 @@ export interface  DetailsModel{
   sourceName:string;
   status:number;
   createTime:number;
+
 }
 
 export interface  CommentsModel{

@@ -17,6 +17,18 @@ class ReaderParams {
     this.chapterId = chapterId;
   }
 }
+// 章节参数
+class ChapterParams {
+  sourceName: string = '';
+  sourceId: string = '';
+  chapterId: string = '';
+
+  constructor(sourceName: string, sourceId: string,chapterId: string) {
+    this.sourceName = sourceName;
+    this.sourceId = sourceId;
+    this.chapterId = chapterId;
+  }
+}
 
 interface ThemeModel {
   bgColor: string;
@@ -27,6 +39,8 @@ interface ThemeModel {
 @Entry
 @Component
 struct ReaderPage {
+  // 接受路由对象
+  @Consume('pageInfos') pageInfos: NavPathStack;
   // 创建滚动对象  控制页面的滚动效果
   scroller: Scroller = new Scroller()
   @State queryParams: ReaderParams = new ReaderParams('', '', '')
@@ -197,7 +211,7 @@ struct ReaderPage {
             Text(this.readerData.chapterTitle)
               .fontSize(27)
               .fontColor(this.fontColor)
-              .margin({ bottom: 30 })
+              .margin({ bottom: 30, top:50 })
             Text(this.readerData.content)
               .fontSize(this.fontSize)
               .fontColor(this.fontColor)
@@ -228,6 +242,9 @@ struct ReaderPage {
               .height(35)
               .textAlign(TextAlign.Center)
               .border({ width: 1, style: BorderStyle.Solid, color: "#999" })
+              .onClick(() => {
+                this.pageInfos.pushPath({name:"ChaptersPage", param:new ChapterParams(this.readerData.sourceName, this.readerData.sourceId, this.readerData.chapterId)})
+              })
 
               Text() {
                 SymbolSpan($r('sys.symbol.chevron_right'))
