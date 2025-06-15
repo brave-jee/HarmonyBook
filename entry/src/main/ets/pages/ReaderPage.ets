@@ -1,11 +1,11 @@
 import readerRequest, { ReaderChapterModel } from '../viewModel/Reader'
-
+import {BookListModel} from './Index'
 // 跳转页面入口函数
 @Builder
 export function ReaderPageBuilder() {
   ReaderPage()
 }
-
+// 阅读参数
 class ReaderParams {
   sourceName: string = '';
   sourceId: string = '';
@@ -41,6 +41,8 @@ interface ThemeModel {
 struct ReaderPage {
   // 接受路由对象
   @Consume('pageInfos') pageInfos: NavPathStack;
+  // 引入本地存储
+  @LocalStorageLink('bookList') bookList:Array<BookListModel> = [];
   // 创建滚动对象  控制页面的滚动效果
   scroller: Scroller = new Scroller()
   @State queryParams: ReaderParams = new ReaderParams('', '', '')
@@ -112,17 +114,41 @@ struct ReaderPage {
     readerRequest.ReaderRequestHandler(`/chapter_content?sourceName=${this.queryParams.sourceName}&sourceId=${this.queryParams.sourceId}`)
       .then(res => {
         this.readerData = res;
+        // 记录阅读书籍的记录
+        this.recordBooklist()
       })
   }
-
+  // 存在章节ID
   getOtherChapter() {
     // 请求新一页的数据时， 返回顶部
     this.scroller.scrollTo({ xOffset: 0, yOffset: 0, animation: { duration: 500, curve: Curve.EaseIn } })
     readerRequest.ReaderRequestHandler(`/chapter_content?sourceName=${this.queryParams.sourceName}&sourceId=${this.queryParams.sourceId}&chapterId=${this.queryParams.chapterId}`)
       .then(res => {
-        console.log('数据请求回来', JSON.stringify(res))
         this.readerData = res;
+        // 记录阅读书籍的记录
+        this.recordBooklist()
       })
+  }
+
+  recordBooklist(){
+    //  判断是否阅读过该书籍  读过  更新书籍， 没有读过， 添加记录
+    // some() 方法返回的结果是一个布尔值， true 满组条件， false 不满足
+    let isExitBook = this.bookList.some(item => item.sourceId === this.readerData.sourceId)
+    //  条件成立  存在
+    if(isExitBook){
+      // 更新数据
+      let index = this.bookList.findIndex(item => item.sourceId === this.readerData.sourceId)
+      this.bookList.splice(index, 1, {
+        sourceId: this.readerData.sourceId,
+        chapterId:this.readerData.chapterId
+      })
+    }else{
+      // 添加新纪录
+      this.bookList.push({
+        sourceId: this.readerData.sourceId,
+        chapterId:this.readerData.chapterId
+      })
+    }
   }
 
   build() {
@@ -285,8 +311,12 @@ struct ReaderPage {
     .onReady((context: NavDestinationContext) => {
       this.queryParams = (context?.pathInfo?.param) as ReaderParams;
 
-      // 发送请求
-      this.getFirstChapter()
+      if(this.queryParams.chapterId){
+        this.getOtherChapter()
+      }else{
+        // 发送请求
+        this.getFirstChapter()
+      }
     })
   }
 }

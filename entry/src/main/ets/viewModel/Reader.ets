@@ -17,7 +17,7 @@ class ReaderRequest {
     return new Promise((resolve: Function) => {
       let url = `${Constants.SERVER}${pathname}`; // url='https://xxxx.com/book_mall'
       httpRequestGet(url).then((data: ResponseResult) => {
-        console.log('测试请求', url)
+        console.log('测试请求=====', url)
         console.log(JSON.stringify(data))
         //   判断请求是否成功
         if (data.errcode === Constants.HTTP_ERRCODE) {

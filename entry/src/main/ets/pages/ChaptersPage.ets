@@ -1,11 +1,12 @@
 import chaptersRequest, { ChaptersModel, ChaptersListModel } from '../viewModel/Chapters'
 import {formatChaptersList, FormateChapterModel} from '../utils/tools'
+import {BookListModel} from './Index'
 // 跳转页面入口函数
 @Builder
 export function ChaptersPageBuilder() {
   ChaptersPage()
 }
-
+// 章节参数
 class ChapterQuery {
   sourceName: string = '';
   sourceId: string = '';
@@ -18,9 +19,24 @@ class ChapterQuery {
   }
 }
 
+class ReaderParams{
+  sourceName: string = '';
+  sourceId: string = '';
+  chapterId: string = '';
+
+  constructor(sourceName: string, sourceId: string, chapterId: string) {
+    this.sourceName = sourceName;
+    this.sourceId = sourceId;
+    this.chapterId = chapterId;
+  }
+}
+
 @Entry
 @Component
 struct ChaptersPage {
+  @Consume('pageInfos') pageInfos:NavPathStack;
+  // 引入本地存储
+  @LocalStorageLink('bookList') bookList:Array<BookListModel> = [];
   @State chapterQuery: ChapterQuery = new ChapterQuery('', '')
   @State chaptersData: ChaptersModel = {
     bookTitle: '',
@@ -43,16 +59,15 @@ struct ChaptersPage {
   }
 
   getChaptersPageList() {
-    chaptersRequest.ChaptersRequestHandler(`/chapters?sourceName=${this.chapterQuery.sourceName}&sourceId=${this.chapterQuery.sourceId}&chapterId=${this.chapterQuery.chapterId}}`)
+    chaptersRequest.ChaptersRequestHandler(`/chapters?sourceName=${this.chapterQuery.sourceName}&sourceId=${this.chapterQuery.sourceId}&chapterId=${this.chapterQuery.chapterId}`)
       .then(res => {
         this.chaptersData = res;
         this.chapterList = formatChaptersList(this.chaptersData.chapterSize)
         // 设置下拉菜单的选中项内容
+        this.selectIndex = res.page;
         this.selectText = this.chapterList[res.page].value
       })
   }
-
-
 
   build() {
     NavDestination() {
@@ -79,13 +94,21 @@ struct ChaptersPage {
               .width('100%')
               .height(47)
               .textAlign(TextAlign.Start)
+              // 通过阅读记录判断高亮
+              .fontColor(this.bookList.some(book => item.chapterId === book.chapterId) ? '#ffa600' :'#2e2e2e')
               .padding({ left: 15 })
               .border({ width: { bottom: 1 }, style: BorderStyle.Solid, color: "#f9f9f9" })
+              .onClick(() => {
+                // 跳转到阅读页面
+                this.pageInfos.pushPath({name:"ReaderPage", param: new ReaderParams(this.chapterQuery.sourceName, this.chapterQuery.sourceId, item.chapterId)})
+              })
           })
-        }
+        }.padding({bottom:30})
       }
 
-    }.onReady((context: NavDestinationContext) => {
+    }
+    .title(this.chaptersData.bookTitle)
+    .onReady((context: NavDestinationContext) => {
       this.chapterQuery = context.pathInfo.param as ChapterQuery;
       // 发送请求
       if(this.chapterQuery.chapterId){

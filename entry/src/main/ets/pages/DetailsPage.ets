@@ -7,7 +7,7 @@ import {
   textCollapse,
   TextResult
 } from '../utils/tools'
-
+import {BookListModel} from './Index'
 // 跳转页面入口函数
 @Builder
 export function DetailsPageBuilder() {
@@ -18,10 +18,12 @@ export function DetailsPageBuilder() {
 class DetailsParams {
   sourceName: string = '';
   sourceId: string = '';
+  chapterId?:string = ''
 
-  constructor(sourceName: string, sourceId: string) {
+  constructor(sourceName: string, sourceId: string, chapterId?:string) {
     this.sourceName = sourceName;
     this.sourceId = sourceId;
+    this.chapterId = chapterId;
   }
 }
 
@@ -42,6 +44,8 @@ class ChapterParams {
 export default struct DetailsPage {
   // 接受路由对象
   @Consume('pageInfos') pageInfos: NavPathStack;
+  // 引入本地存储
+  @LocalStorageLink('bookList') bookList:Array<BookListModel> = [];
   // 接受路由传递的数据
   @State queryParams: DetailsParams = new DetailsParams('', '');
   @State detailsInfos: DetailsModel = {
@@ -129,17 +133,30 @@ export default struct DetailsPage {
               .width(250)
             }
 
-            Text('立即阅读')
+            Text(this.bookList.some(item => item.sourceId === this.detailsInfos.sourceId)  ? '继续阅读' : '立即阅读')
               .width('100%')
               .height(40)
               .textAlign(TextAlign.Center)
               .backgroundColor('#ffbb1b')
               .margin({ top: 10 })
               .onClick(() => {
-                this.pageInfos.pushPath({
-                  name: "ReaderPage",
-                  param: new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId)
-                })
+                // 判断是否存在阅读记录  filter()方法返回结果是一个数组  如果存在记录， readerResult数组中就有数据
+                let readerResult = this.bookList.filter(item => item.sourceId === this.detailsInfos.sourceId)
+
+                if(readerResult.length > 0){
+                  // 读过  w我需要从上次阅读的章节开始继续
+                  this.pageInfos.pushPath({
+                    name: "ReaderPage",
+                    param: new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId, readerResult[0].chapterId)
+                  })
+
+                }else{
+                  this.pageInfos.pushPath({
+                    name: "ReaderPage",
+                    param: new DetailsParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId)
+                  })
+                }
+
               })
           }
           .width('100%')
@@ -169,7 +186,14 @@ export default struct DetailsPage {
           .width('100%')
           .height(60)
           .onClick(() => {
-            this.pageInfos.pushPath({ name: 'ChaptersPage', param: new ChapterParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId) })
+            // 判断是否存在阅读记录
+            let readerResult = this.bookList.filter(item => item.sourceId === this.detailsInfos.sourceId)
+            if(readerResult.length > 0){
+              this.pageInfos.pushPath({ name: 'ChaptersPage', param: new ChapterParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId, readerResult[0].chapterId) })
+            }else {
+              this.pageInfos.pushPath({ name: 'ChaptersPage', param: new ChapterParams(this.detailsInfos.sourceName, this.detailsInfos.sourceId) })
+            }
+
           })
 
           // 内容简介

@@ -11,6 +11,13 @@ class DetailsParams{
     this.sourceId = sourceId;
   }
 }
+// 本地存储   记录阅读书籍信息
+export interface BookListModel {
+  sourceId:string;
+  chapterId:string;
+}
+let bookList: Record<string, Array<BookListModel>> = { 'bookList': [] };
+let storage: LocalStorage = new LocalStorage(bookList); // 创建新实例并使用给定对象初始化
 
 @Entry
 @Component
